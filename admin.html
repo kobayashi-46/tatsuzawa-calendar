@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>データソース管理 | 龍澤学館グループ マスターカレンダー</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Hiragino Sans','Meiryo',sans-serif;background:#f5f7fa;color:#37485A;min-height:100vh}
+.topbar{background:#37485A;color:#fff;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:10}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.topbar-title{font-size:16px;font-weight:600}
+.topbar-sub{font-size:12px;opacity:.65}
+.back-btn{padding:5px 12px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:5px;color:#fff;font-size:12px;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.back-btn:hover{background:rgba(255,255,255,0.2)}
+.wrap{max-width:1100px;margin:0 auto;padding:1.5rem}
+
+/* 一括エリア */
+.bulk-bar{background:white;border:1px solid #e0e0e0;border-radius:10px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.bulk-left{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.bulk-btn{height:36px;padding:0 20px;background:#00BAA5;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;font-weight:500}
+.bulk-btn:hover{background:#009a87}
+.bulk-btn:disabled{background:#aaa;cursor:not-allowed}
+.bulk-info{font-size:12px;color:#666}
+.bulk-info span{font-weight:600;color:#37485A}
+.bulk-stat{font-size:11px;color:#aaa;margin-top:2px}
+.progress-bar{height:4px;background:#eee;border-radius:2px;overflow:hidden;margin-top:8px;width:100%}
+.progress-fill{height:100%;background:#00BAA5;border-radius:2px;transition:width .3s}
+
+/* セクション */
+.section{margin-bottom:24px}
+.section-label{font-size:13px;font-weight:600;color:#37485A;padding:8px 0;border-bottom:2px solid #00BAA5;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.section-count{font-size:11px;color:#aaa;font-weight:400}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+
+/* カード */
+.card{background:white;border:1px solid #e0e0e0;border-radius:8px;padding:12px 14px;transition:border-color .15s}
+.card:hover{border-color:#00BAA5}
+.card-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.card-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.card-name{font-size:13px;font-weight:600;color:#37485A;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-short{font-size:11px;color:#aaa;margin-left:2px}
+.url-row{display:flex;gap:6px;align-items:center;margin-bottom:8px}
+.url-input{flex:1;padding:5px 8px;border:1px solid #ddd;border-radius:5px;font-size:11px;font-family:monospace;color:#37485A;min-width:0}
+.url-input:focus{outline:none;border-color:#00BAA5}
+.url-input.has-url{background:#f8fffe;border-color:#b2e8e2}
+.open-btn{width:30px;height:30px;border:1px solid #ddd;border-radius:5px;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;text-decoration:none;color:#666;font-size:14px}
+.open-btn:hover{background:#e0f7f5;border-color:#00BAA5;color:#00BAA5}
+.open-btn.disabled{opacity:.3;pointer-events:none;cursor:default}
+.card-foot{display:flex;align-items:center;justify-content:space-between}
+.stat-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+.stat-ok{background:#e0f7f5;color:#00BAA5}
+.stat-none{background:#f5f5f5;color:#aaa}
+.stat-err{background:#fde8e8;color:#c00}
+.stat-loading{background:#fff3cd;color:#856404}
+.load-btn{height:26px;padding:0 10px;font-size:11px;border:1px solid #ddd;border-radius:4px;background:white;cursor:pointer;color:#666;font-family:inherit;white-space:nowrap}
+.load-btn:hover{background:#e0f7f5;border-color:#00BAA5;color:#00BAA5}
+.load-btn:disabled{opacity:.5;cursor:not-allowed}
+
+@media(max-width:600px){
+  .cards{grid-template-columns:1fr}
+  .topbar{padding:0 1rem}
+  .wrap{padding:1rem}
+  .bulk-bar{padding:12px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left"></div>
+  </div>
+  <a class="back-btn" href="master_calendar_v3.html">&#8592; カレンダーに戻る</a>
+</div>
+
+<div class="wrap">
+
+  <div class="bulk-bar">
+    <div class="bulk-left">
+      <button class="bulk-btn" id="bulkBtn" onclick="loadAll()">&#x21BB; 全校一括読み込み</button>
+      <div>
+        <div class="bulk-info">登録済み: <span id="regCount">0</span> 校 / 18校</div>
+        <div class="bulk-stat" id="bulkStat">URLを登録すると読み込めます</div>
+      </div>
+    </div>
+    <div style="flex:1;min-width:180px">
+      <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div id="sections"></div>
+
+</div>
+
+<script>
+const SCHOOLS = [{"name": "いわて富士大学", "short": "富士大", "color": "#00BAA5", "chip": "light", "group": "大学・高校・中学"}, {"name": "盛岡中央高等学校", "short": "中央高", "color": "#8B0000", "chip": "solid", "group": "大学・高校・中学"}, {"name": "盛岡中央高等学校 単位制", "short": "中央高(単)", "color": "#8B0000", "chip": "outline", "group": "大学・高校・中学"}, {"name": "盛岡中央高等学校附属中学校", "short": "附属中", "color": "#c0392b", "chip": "outline", "group": "大学・高校・中学"}, {"name": "専修学校 盛岡中央ゼミナール", "short": "中央ゼミ", "color": "#d48800", "chip": "light", "group": "大学・高校・中学"}, {"name": "MCL専門学校グループ", "short": "MCL全体", "color": "#0070c0", "chip": "light", "group": "MCL専門学校グループ"}, {"name": "MCL盛岡情報ビジネス&デザイン専門学校", "short": "モリジョビ", "color": "#1a6fad", "chip": "light", "group": "MCL専門学校グループ"}, {"name": "MCL盛岡情報ビジネス&デザイン専門学校日本語学科", "short": "情報BD(日)", "color": "#2980b9", "chip": "light", "group": "MCL専門学校グループ"}, {"name": "MCL盛岡外語観光&ブライダル専門学校", "short": "外語観光", "color": "#8e44ad", "chip": "light", "group": "MCL専門学校グループ"}, {"name": "MCL盛岡ペットワールド専門学校", "short": "ペット", "color": "#d35400", "chip": "light", "group": "MCL専門学校グループ"}, {"name": "MCL盛岡菜園調理製菓専門学校", "short": "菜園調理", "color": "#27ae60", "chip": "light", "group": "MCL専門学校グループ"}, {"name": "MCL盛岡医療大学校", "short": "医療大", "color": "#1a3a60", "chip": "solid", "group": "MCL専門学校グループ"}, {"name": "MCL盛岡医療福祉&スポーツ専門学校", "short": "モリイ", "color": "#a04060", "chip": "light", "group": "MCL専門学校グループ"}, {"name": "MCL盛岡公務員法律専門学校", "short": "公務員", "color": "#c0392b", "chip": "light", "group": "MCL専門学校グループ"}, {"name": "釜石市国際外語大学校", "short": "釜石", "color": "#1abc9c", "chip": "light", "group": "その他"}, {"name": "月が丘幼稚園・保育園", "short": "月が丘", "color": "#9b59b6", "chip": "light", "group": "その他"}, {"name": "盛医ひまわり保育園", "short": "盛医ひまわり", "color": "#e09000", "chip": "light", "group": "その他"}, {"name": "龍澤学館グループ本部", "short": "学館本部", "color": "#37485A", "chip": "light", "group": "その他"}];
+
+const STORAGE_KEY = 'cal_sheet_urls_v3';
+const RESULT_KEY  = 'cal_sheet_results_v3';
+
+let urls = {};
+let results = {};
+
+function loadStorage(){
+  try{ urls = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'); }catch(e){ urls={}; }
+  try{ results = JSON.parse(localStorage.getItem(RESULT_KEY)||'{}'); }catch(e){ results={}; }
+}
+function saveStorage(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(urls));
+}
+function saveResults(){
+  localStorage.setItem(RESULT_KEY, JSON.stringify(results));
+}
+
+function statBadge(name){
+  const r = results[name];
+  if(!r) return '<span class="stat-badge stat-none">未取得</span>';
+  if(r.status==='loading') return '<span class="stat-badge stat-loading">読み込み中...</span>';
+  if(r.status==='ok') return `<span class="stat-badge stat-ok">&#10003; ${r.time}　${r.count}件</span>`;
+  if(r.status==='error') return '<span class="stat-badge stat-err">&#10007; エラー</span>';
+  return '';
+}
+
+function render(){
+  const groups = [...new Set(SCHOOLS.map(s=>s.group))];
+  const registered = SCHOOLS.filter(s=>urls[s.name]&&urls[s.name].trim()).length;
+  document.getElementById('regCount').textContent = registered;
+  document.getElementById('progFill').style.width = (registered/SCHOOLS.length*100)+'%';
+
+  let html = '';
+  groups.forEach(g=>{
+    const schools = SCHOOLS.filter(s=>s.group===g);
+    const gReg = schools.filter(s=>urls[s.name]&&urls[s.name].trim()).length;
+    html += `<div class="section">
+      <div class="section-label">${g}<span class="section-count">登録 ${gReg}/${schools.length}校</span></div>
+      <div class="cards">`;
+    schools.forEach(s=>{
+      const u = urls[s.name]||'';
+      const hasUrl = u.trim()!=='';
+      const dotStyle = s.chip==='solid'?`background:${s.color}`
+        : s.chip==='outline'?`background:white;border:2px solid ${s.color}`
+        : `background:${s.color}`;
+      html += `<div class="card" id="card-${cssId(s.name)}">
+        <div class="card-head">
+          <span class="card-dot" style="${dotStyle}"></span>
+          <span class="card-name" title="${s.name}">${s.name}</span>
+          <span class="card-short">${s.short}</span>
+        </div>
+        <div class="url-row">
+          <input class="url-input${hasUrl?' has-url':''}" id="url-${cssId(s.name)}"
+            placeholder="CSV公開URLを貼り付け..."
+            value="${escHtml(u)}"
+            onchange="onUrlChange('${escJs(s.name)}',this.value)"
+            oninput="onUrlChange('${escJs(s.name)}',this.value)" />
+          <a class="open-btn${hasUrl?'':' disabled'}" id="open-${cssId(s.name)}"
+            href="${escHtml(u?toSheetUrl(u):'#')}"
+            target="_blank" title="スプレッドシートを開く">&#x1F517;</a>
+        </div>
+        <div class="card-foot">
+          <span id="stat-${cssId(s.name)}">${statBadge(s.name)}</span>
+          <button class="load-btn" onclick="loadOne('${escJs(s.name)}')" ${hasUrl?'':'disabled'}>読み込む</button>
+        </div>
+      </div>`;
+    });
+    html += '</div></div>';
+  });
+  document.getElementById('sections').innerHTML = html;
+  updateBulkStat();
+}
+
+function cssId(name){ return name.replace(/[^a-zA-Z0-9]/g,'_'); }
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function escJs(s){ return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+function toSheetUrl(csvUrl){
+  // CSV公開URLからスプレッドシートのURLに変換
+  const m = csvUrl.match(/\/spreadsheets\/d\/([^/]+)/);
+  if(m) return `https://docs.google.com/spreadsheets/d/${m[1]}/edit`;
+  return csvUrl;
+}
+
+function onUrlChange(name, val){
+  urls[name] = val.trim();
+  saveStorage();
+  const id = cssId(name);
+  const inp = document.getElementById('url-'+id);
+  const openBtn = document.getElementById('open-'+id);
+  const loadBtn = inp && inp.parentElement.nextElementSibling && inp.parentElement.nextElementSibling.querySelector('.load-btn');
+  if(inp){ inp.classList.toggle('has-url', val.trim()!==''); }
+  if(openBtn){
+    if(val.trim()){
+      openBtn.href = toSheetUrl(val.trim());
+      openBtn.classList.remove('disabled');
+    } else {
+      openBtn.href = '#';
+      openBtn.classList.add('disabled');
+    }
+  }
+  if(loadBtn) loadBtn.disabled = val.trim()==='';
+  const registered = SCHOOLS.filter(s=>urls[s.name]&&urls[s.name].trim()).length;
+  document.getElementById('regCount').textContent = registered;
+  document.getElementById('progFill').style.width = (registered/SCHOOLS.length*100)+'%';
+  updateBulkStat();
+}
+
+async function loadOne(name){
+  const url = urls[name]||'';
+  if(!url){ return; }
+  const id = cssId(name);
+  results[name] = {status:'loading'};
+  document.getElementById('stat-'+id).innerHTML = '<span class="stat-badge stat-loading">読み込み中...</span>';
+  try{
+    const r = await fetch(url);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const txt = await r.text();
+    const lines = txt.split("\n").map(l=>l.trim()).filter(l=>l);
+    let count = 0;
+    for(let i=1;i<lines.length;i++){
+      const cols = lines[i].split(",").map(c=>c.replace(/^"|"$/g,"").trim());
+      if(cols.length>=4&&cols[0]&&!cols[0].startsWith('※')) count++;
+    }
+    const now = new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+    results[name] = {status:'ok', time:now, count, raw:txt};
+    saveResults();
+    mergeToCalendar();
+    document.getElementById('stat-'+id).innerHTML = `<span class="stat-badge stat-ok">&#10003; ${now}　${count}件</span>`;
+  } catch(e){
+    results[name] = {status:'error'};
+    saveResults();
+    document.getElementById('stat-'+id).innerHTML = '<span class="stat-badge stat-err">&#10007; エラー</span>';
+  }
+  updateBulkStat();
+}
+
+async function loadAll(){
+  const targets = SCHOOLS.filter(s=>urls[s.name]&&urls[s.name].trim());
+  if(targets.length===0){ alert('URLが登録されていません'); return; }
+  const btn = document.getElementById('bulkBtn');
+  btn.disabled = true;
+  btn.textContent = '読み込み中...';
+  for(const s of targets){
+    await loadOne(s.name);
+  }
+  btn.disabled = false;
+  btn.innerHTML = '&#x21BB; 全校一括読み込み';
+  updateBulkStat();
+}
+
+function mergeToCalendar(){
+  // 全校のrawデータをマージしてカレンダー用ストレージに保存
+  const allEvents = [];
+  SCHOOLS.forEach(s=>{
+    const r = results[s.name];
+    if(!r||r.status!=='ok'||!r.raw) return;
+    const lines = r.raw.split("\n").map(l=>l.trim()).filter(l=>l);
+    for(let i=1;i<lines.length;i++){
+      const cols = lines[i].split(",").map(c=>c.replace(/^"|"$/g,"").trim());
+      if(cols.length<4) continue;
+      const [date,school,cat,title] = cols;
+      if(!date||!school||!cat||!title||date.startsWith('※')) continue;
+      allEvents.push({date,school,cat,title});
+    }
+  });
+  localStorage.setItem('cal_merged_events', JSON.stringify(allEvents));
+}
+
+function updateBulkStat(){
+  const ok = SCHOOLS.filter(s=>results[s.name]&&results[s.name].status==='ok').length;
+  const err = SCHOOLS.filter(s=>results[s.name]&&results[s.name].status==='error').length;
+  let msg = '';
+  if(ok>0) msg += `${ok}校 読み込み済み　`;
+  if(err>0) msg += `${err}校 エラー　`;
+  const times = SCHOOLS.map(s=>results[s.name]&&results[s.name].status==='ok'?results[s.name].time:null).filter(Boolean);
+  if(times.length>0) msg += `最終取得: ${times[times.length-1]}`;
+  document.getElementById('bulkStat').textContent = msg || 'URLを登録すると読み込めます';
+}
+
+loadStorage();
+render();
+</script>
+</body>
+</html>

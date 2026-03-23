@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>龍澤学館グループ マスターカレンダー 2026年度</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Hiragino Sans','Meiryo',sans-serif;background:#f5f7fa;color:#37485A}
+.wrap{max-width:1300px;margin:0 auto;padding:1.5rem}
+.topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.cal-title{font-size:20px;font-weight:600;color:#37485A}
+.cal-title span{color:#00BAA5}
+.vtog{display:flex;border:1.5px solid #00BAA5;border-radius:6px;overflow:hidden;margin-left:auto}
+.vtog button{padding:5px 14px;font-size:13px;border:none;cursor:pointer;background:white;color:#37485A;font-family:inherit;outline:none}
+.vtog button.active{background:#00BAA5;color:#fff;font-weight:500}
+.nav{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.navbtn{width:30px;height:30px;border:1px solid #ccc;border-radius:5px;background:white;cursor:pointer;font-size:15px;color:#37485A;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.navbtn:hover{background:#e0f7f5}
+.tdbtn{height:30px;padding:0 13px;font-size:13px;border:1px solid #ccc;border-radius:5px;background:white;cursor:pointer;color:#666;font-family:inherit;white-space:nowrap;display:inline-flex;align-items:center;flex-shrink:0;line-height:1}
+.tdbtn:hover{background:#e0f7f5}
+.nav-lbl{font-size:16px;font-weight:600;color:#37485A;min-width:180px;text-align:center}
+
+
+.srow:last-child{margin-bottom:0}
+
+
+.surl:focus{outline:none;border-color:#00BAA5}
+
+
+
+
+
+
+
+
+
+.fbar{background:white;border:1px solid #e0e0e0;border-radius:8px;padding:10px 14px;margin-bottom:10px}
+.frow{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-bottom:5px}
+.frow:last-child{margin-bottom:0}
+.flbl{font-size:12px;color:#888;min-width:48px;font-weight:500}
+.schip{padding:3px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:1.5px solid;font-family:inherit;transition:opacity .15s}
+.schip.off{opacity:.22}
+.ccat{padding:4px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid #ccc;background:#f5f5f5;color:#666;font-family:inherit}
+.ccat.on{background:#37485A;color:#fff;border-color:#37485A}
+.sa{font-size:12px;color:#00BAA5;cursor:pointer;text-decoration:underline;background:none;border:none;margin-left:6px;font-family:inherit}
+
+/* レイアウト */
+.layout-side{display:grid;grid-template-columns:1fr 240px;gap:12px;align-items:start}
+@media(max-width:767px){.layout-side{display:block}}
+
+/* 月グリッド */
+.mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:#ddd;border:1px solid #ddd;border-radius:8px;overflow:hidden}
+.dh{background:#37485A;color:#fff;text-align:center;padding:7px;font-size:12px;font-weight:500}
+.dc{background:white;min-height:90px;padding:4px;cursor:pointer}
+.dc:hover{background:#f5f5f5}
+.dc.om{background:#f8f8f8}
+.dn-wrap{display:flex;margin-bottom:2px}
+.dn{font-size:12px;color:#aaa;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-weight:400}
+.dc.sun .dn{color:#e05}.dc.sat .dn{color:#00BAA5}
+.dc.tod .dn{background:#00BAA5;color:#fff;font-weight:600}
+.dc.sel .dn{background:#37485A;color:#fff;font-weight:600}
+.dc.tod.sel .dn{background:#37485A;color:#fff;outline:2px solid #00BAA5;outline-offset:1px}
+.ep{padding:2px 5px;border-radius:3px;font-size:10px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hp{background:#fde8e8;color:#c00;font-size:10px;margin-bottom:2px;padding:2px 5px;border-radius:3px;font-weight:500}
+.more{font-size:10px;color:#00BAA5;font-weight:500;padding:1px 4px;cursor:pointer}
+
+/* サイドパネル */
+.side-panel{background:white;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;position:sticky;top:12px}
+.side-hd{background:#37485A;color:#fff;padding:9px 14px;font-size:13px;font-weight:500}
+.side-body{padding:10px 14px;max-height:400px;overflow-y:auto}
+.side-ev{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:0.5px solid #eee}
+.side-ev:last-child{border-bottom:none}
+.side-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.side-sch{font-size:10px;color:#888}
+.side-ttl{font-size:13px;font-weight:500;color:#37485A}
+.side-hint{font-size:12px;color:#ccc;padding:8px 0;text-align:center}
+.side-empty{font-size:12px;color:#aaa;padding:8px 0}
+@media(max-width:767px){.side-panel{display:none}}
+
+/* モーダル（スマホ用） */
+.modal-bg{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(55,72,90,0.45);z-index:100;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:white;border-radius:10px;width:90%;max-width:340px;overflow:hidden;border:1px solid #ddd}
+.modal-hd{background:#37485A;color:#fff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
+.modal-hd span{font-size:14px;font-weight:500}
+.modal-close{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:0 2px;line-height:1}
+.modal-body{padding:12px 14px;max-height:50vh;overflow-y:auto}
+.modal-ev{display:flex;gap:8px;padding:7px 0;border-bottom:0.5px solid #eee}
+.modal-ev:last-child{border-bottom:none}
+.modal-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.modal-sch{font-size:11px;color:#888}
+.modal-ttl{font-size:13px;font-weight:500;color:#37485A}
+@media(min-width:768px){.modal-bg{display:none!important}}
+
+/* 週ビュー */
+.wgrid{display:grid;grid-template-columns:48px repeat(7,minmax(0,1fr));border:1px solid #ddd;border-radius:8px;overflow:hidden}
+.wdh{background:#37485A;color:#fff;text-align:center;padding:7px 2px;border-right:1px solid rgba(255,255,255,0.12);cursor:pointer}
+.wdh.todh{background:#00BAA5}.wdh.selh{outline:2px solid #00BAA5;outline-offset:-2px}
+.wdh.todh.selh{outline:2px solid #fff;outline-offset:-3px}
+.wdh.sunh{background:#c0392b}.wdh.sath{background:#1a6fad}
+.wdh-date{font-size:18px;font-weight:500;display:block;line-height:1.3}
+.wdh-day{font-size:11px;opacity:.8}
+.wlbl{background:#f5f5f5;border-right:1px solid #eee;border-top:1px solid #eee;font-size:10px;color:#aaa;text-align:right;padding:3px 6px}
+.wcell{border-right:1px solid #eee;border-top:1px solid #eee;background:white;padding:3px;min-height:44px;cursor:pointer}
+.wcell.selw{background:#e8f4fb}.wcell.todw{background:#e6faf8}
+
+/* 日ビュー */
+.day-wrap{border:1px solid #ddd;border-radius:8px;overflow:hidden}
+.dhrow{display:grid;grid-template-columns:48px 1fr}
+.darow{display:grid;grid-template-columns:48px 1fr;border-bottom:1px solid #eee;min-height:48px}
+.dslot{display:grid;grid-template-columns:48px 1fr;border-bottom:1px solid #eee}
+.dst{font-size:10px;color:#aaa;padding:3px 6px;text-align:right;border-right:1px solid #eee;background:#f5f5f5}
+.dse{padding:3px;min-height:36px;background:white}
+
+/* 年間ビュー */
+.ygrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:700px){.ygrid{grid-template-columns:1fr 1fr}}
+@media(max-width:460px){.ygrid{grid-template-columns:1fr}}
+.ymm{border:1px solid #ddd;border-radius:8px;overflow:hidden;background:white}
+.ymh{background:#37485A;color:#fff;padding:7px 10px;font-size:13px;font-weight:500}
+.ymg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.ymdh{text-align:center;font-size:10px;padding:3px 0;color:#888;background:#f5f5f5}
+.ymd{text-align:center;font-size:11px;padding:2px 1px;min-height:24px;cursor:pointer}
+.ymd.oth{color:#ddd}
+.ymd .yn{display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;border-radius:50%}
+.ymd.tody .yn{background:#00BAA5;color:#fff;font-weight:600}
+.ymd.sely .yn{background:#37485A;color:#fff}
+.ymd.tody.sely .yn{background:#37485A;color:#fff;outline:2px solid #00BAA5;outline-offset:1px}
+.ymd.suny{color:#e05}.ymd.saty{color:#00BAA5}
+.drow{display:flex;gap:1px;justify-content:center;margin-top:1px;flex-wrap:wrap}
+.dot{width:4px;height:4px;border-radius:50%;display:inline-block}
+
+/* 凡例 */
+.leg{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;background:white;border-radius:8px;padding:10px 14px;border:1px solid #e0e0e0}
+.li{display:flex;align-items:center;gap:5px;font-size:11px;color:#555}
+.ld{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+.login-screen{position:fixed;top:0;left:0;right:0;bottom:0;background:#f5f7fa;display:flex;align-items:center;justify-content:center;z-index:1000}
+.login-card{background:white;border-radius:12px;padding:40px 48px;text-align:center;border:1px solid #e0e0e0;max-width:380px;width:90%}
+.login-logo{height:48px;margin-bottom:20px}
+.login-title{font-size:18px;font-weight:600;color:#37485A;margin-bottom:6px}
+.login-sub{font-size:13px;color:#888;margin-bottom:28px}
+.login-err{font-size:12px;color:#c00;margin-top:12px;display:none}
+</style>
+</head>
+<body>
+
+<!-- ログイン画面 -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-title">学校法人龍澤学館グループ</div>
+    <div class="login-sub">カレンダーにアクセスするにはログインが必要です</div>
+    <div id="g_id_onload"
+      data-client_id="628811592070-26bpmi8treqftfsiqek2s2gaaq602jmk.apps.googleusercontent.com"
+      data-callback="handleCredential"
+      data-auto_prompt="true">
+    </div>
+    <div class="g_id_signin"
+      data-type="standard"
+      data-size="large"
+      data-theme="outline"
+      data-text="signin_with"
+      data-shape="rectangular"
+      data-locale="ja">
+    </div>
+    <div class="login-err" id="loginErr">このアカウントはアクセスが許可されていません</div>
+  </div>
+</div>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<div class="wrap">
+
+<div class="topbar">
+  <div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <img src="data:image/png;base64,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AJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgCAAAAoJKwBQAAAEAlYQsAAACASsIWAAAAAJWELQAAAAAqCVsAAAAAVBK2AAAAAKgkbAEAAABQSdgC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AKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKglbAAAAAFQStgAAAACoJGwBAAAAUEnYAgAAAKCSsAUAAABAJWELAAAAgErCFgAAAACVhC0AAAAAKu3f9V8AgHdsfv6P8zVfH5f/zozzRWNL5sjVNrPM7Zv/ewLwK2WZW662mcw1GTNzzMx5fuV9zGTefzAaWzKT9e7z1z5gAfA+ErYAOO9A5LLDMJJke375kuQqu6xZs99f58npdH70uN4lx2M+nslu3v0cAHw1u7nl47klp9vk+jo5blmPS673+4zTbXbZ5Tbri5i1JOtMMi8POVPXAkDYAiDneLUlmSMvAtVlh2Ek2TIzsuR02jIO+8ysybYlu5FHt1t+8HRNckzmcnlV3TRN0zS/fP7gZs1Ht2syR7KdkpHs9vvzY02SLeuL10zGK/PeamJxC+D9JmwB8HqXnYf5UuDasszl/Or57Sk5JD/+/f+S/NqP8uCw/07sKJmmaZolc73Jj//fT5PTdv64FKotW3Y5fzrvPR4BwOv8f7WwyS/IVEWeAAAAAElFTkSuQmCC" style="height:32px;width:auto;display:block;flex-shrink:0">
+      <div class="cal-title"><span style="color:#37485A">学校法人龍澤学館グループ</span> <span style="color:#37485A">カレンダー</span> <span style="font-size:14px;font-weight:400;color:#888">2026年度</span></div>
+    </div>
+  </div>
+  <a href="admin.html" style="height:28px;padding:0 12px;font-size:12px;border:1px solid #ccc;border-radius:5px;background:white;color:#666;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap;flex-shrink:0" onmouseover="this.style.background='#e0f7f5'" onmouseout="this.style.background='white'">&#9881; データ管理</a>
+  <div class="vtog">
+    <button id="vD" onclick="setView('day')">日</button>
+    <button id="vW" onclick="setView('week')">週</button>
+    <button id="vM" class="active" onclick="setView('month')">月</button>
+    <button id="vY" onclick="setView('year')">年間</button>
+  </div>
+</div>
+
+<div class="fbar">
+  <div class="frow">
+    <span class="flbl">学校</span>
+    <button class="sa" onclick="selAll()">全選択</button>
+    <button class="sa" onclick="clrAll()">全解除</button>
+  </div>
+  <div class="frow" id="sF"></div>
+  <div class="frow" style="margin-top:4px">
+    <span class="flbl">種別</span>
+    <button class="ccat on" data-c="OC" onclick="togC(this)">OC</button>
+    <button class="ccat on" data-c="行事" onclick="togC(this)">行事</button>
+    <button class="ccat on" data-c="試験" onclick="togC(this)">試験</button>
+    <button class="ccat on" data-c="祝日" onclick="togC(this)">祝日</button>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="navbtn" onclick="navP()">&#8592;</button>
+  <button class="tdbtn" onclick="goToday()">今日</button>
+  <span class="nav-lbl" id="nLbl"></span>
+  <button class="navbtn" onclick="navN()">&#8594;</button>
+</div>
+
+<div id="calOuter"></div>
+<div class="leg" id="leg"></div>
+</div>
+
+<!-- モーダル（スマホ用） -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="modal-hd">
+      <span id="modalDate"></span>
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const HOL={'2026-04-29':'昭和の日','2026-05-03':'憲法記念日','2026-05-04':'みどりの日','2026-05-05':'こどもの日','2026-07-20':'海の日','2026-08-11':'山の日','2026-09-21':'敬老の日','2026-09-23':'秋分の日','2026-10-12':'スポーツの日','2026-11-03':'文化の日','2026-11-23':'勤労感謝の日','2027-01-01':'元日','2027-01-11':'成人の日','2027-02-11':'建国記念の日','2027-02-23':'天皇誕生日','2027-03-20':'春分の日'};
+const SCH_MASTER=[{"name": "いわて富士大学", "short": "富士大", "color": "#00BAA5", "chip": "light"}, {"name": "盛岡中央高等学校", "short": "中央高", "color": "#8B0000", "chip": "solid"}, {"name": "盛岡中央高等学校 単位制", "short": "中央高(単)", "color": "#8B0000", "chip": "outline"}, {"name": "盛岡中央高等学校附属中学校", "short": "附属中", "color": "#c0392b", "chip": "outline"}, {"name": "専修学校 盛岡中央ゼミナール", "short": "中央ゼミ", "color": "#d48800", "chip": "light"}, {"name": "MCL専門学校グループ", "short": "MCL全体", "color": "#0070c0", "chip": "light"}, {"name": "MCL盛岡情報ビジネス&デザイン専門学校", "short": "モリジョビ", "color": "#1a6fad", "chip": "light"}, {"name": "MCL盛岡情報ビジネス&デザイン専門学校日本語学科", "short": "情報BD(日)", "color": "#2980b9", "chip": "light"}, {"name": "MCL盛岡外語観光&ブライダル専門学校", "short": "外語観光", "color": "#8e44ad", "chip": "light"}, {"name": "MCL盛岡ペットワールド専門学校", "short": "ペット", "color": "#d35400", "chip": "light"}, {"name": "MCL盛岡菜園調理製菓専門学校", "short": "菜園調理", "color": "#27ae60", "chip": "light"}, {"name": "MCL盛岡医療大学校", "short": "医療大", "color": "#1a3a60", "chip": "solid"}, {"name": "MCL盛岡医療福祉&スポーツ専門学校", "short": "モリイ", "color": "#a04060", "chip": "light"}, {"name": "MCL盛岡公務員法律専門学校", "short": "公務員", "color": "#c0392b", "chip": "light"}, {"name": "釜石市国際外語大学校", "short": "釜石", "color": "#1abc9c", "chip": "light"}, {"name": "月が丘幼稚園・保育園", "short": "月が丘", "color": "#9b59b6", "chip": "light"}, {"name": "盛医ひまわり保育園", "short": "盛医ひまわり", "color": "#e09000", "chip": "light"}, {"name": "龍澤学館グループ本部", "short": "学館本部", "color": "#37485A", "chip": "light"}];
+let RAW=[{"date": "2026-04-06", "school": "いわて富士大学", "cat": "行事", "title": "入学式"}, {"date": "2026-05-17", "school": "いわて富士大学", "cat": "OC", "title": "OC①"}, {"date": "2026-06-14", "school": "いわて富士大学", "cat": "OC", "title": "OC②"}, {"date": "2026-07-12", "school": "いわて富士大学", "cat": "OC", "title": "OC③"}, {"date": "2026-08-02", "school": "いわて富士大学", "cat": "OC", "title": "OC④"}, {"date": "2026-08-23", "school": "いわて富士大学", "cat": "OC", "title": "OC⑤"}, {"date": "2026-09-13", "school": "いわて富士大学", "cat": "OC", "title": "OC⑥"}, {"date": "2026-09-10", "school": "いわて富士大学", "cat": "行事", "title": "学園祭"}, {"date": "2026-09-11", "school": "いわて富士大学", "cat": "行事", "title": "学園祭"}, {"date": "2026-10-04", "school": "いわて富士大学", "cat": "OC", "title": "OC⑦"}, {"date": "2026-11-01", "school": "いわて富士大学", "cat": "OC", "title": "OC⑧"}, {"date": "2026-12-06", "school": "いわて富士大学", "cat": "OC", "title": "OC⑨"}, {"date": "2027-01-10", "school": "いわて富士大学", "cat": "OC", "title": "OC⑩"}, {"date": "2027-02-07", "school": "いわて富士大学", "cat": "OC", "title": "OC⑪"}, {"date": "2027-03-20", "school": "いわて富士大学", "cat": "行事", "title": "卒業式"}, {"date": "2026-04-02", "school": "盛岡中央高校", "cat": "行事", "title": "校務連絡会議（非常勤講師14時～）"}, {"date": "2026-04-02", "school": "盛岡中央高校", "cat": "行事", "title": "課会・学年会"}, {"date": "2026-04-03", "school": "盛岡中央高校", "cat": "行事", "title": "新年度職員会議（午後）"}, {"date": "2026-04-03", "school": "盛岡中央高校", "cat": "行事", "title": "職員健康診断（午前）"}, {"date": "2026-04-04", "school": "盛岡中央高校", "cat": "行事", "title": "胃腸病検診（午前）"}, {"date": "2026-04-05", "school": "盛岡中央高校", "cat": "行事", "title": "入学式準備・予行（マリオス）"}, {"date": "2026-04-07", "school": "盛岡中央高校", "cat": "行事", "title": "入学式"}, {"date": "2026-04-08", "school": "盛岡中央高校", "cat": "行事", "title": "始業式"}, {"date": "2026-04-08", "school": "盛岡中央高校", "cat": "行事", "title": "身体測定（全）"}, {"date": "2026-04-09", "school": "盛岡中央高校", "cat": "行事", "title": "対面式"}, {"date": "2026-04-09", "school": "盛岡中央高校", "cat": "行事", "title": "新入生OR"}, {"date": "2026-04-10", "school": "盛岡中央高校", "cat": "行事", "title": "スタディーサポート（全）"}, {"date": "2026-04-13", "school": "盛岡中央高校", "cat": "行事", "title": "第1の習慣研修（1V・SZ・Z）午後"}, {"date": "2026-04-13", "school": "盛岡中央高校", "cat": "行事", "title": "新入生個人写真撮影（午前）"}, {"date": "2026-04-14", "school": "盛岡中央高校", "cat": "行事", "title": "第1の習慣研修（1AR・B）午前"}, {"date": "2026-04-15", "school": "盛岡中央高校", "cat": "行事", "title": "内科検診①（午後）"}, {"date": "2026-04-15", "school": "盛岡中央高校", "cat": "試験", "title": "スタサプ到達度テスト（1年：午前）"}, {"date": "2026-04-16", "school": "盛岡中央高校", "cat": "行事", "title": "委員会集会"}, {"date": "2026-04-16", "school": "盛岡中央高校", "cat": "行事", "title": "3年生進路G"}, {"date": "2026-04-17", "school": "盛岡中央高校", "cat": "行事", "title": "部集会　内科検診②（午後）"}, {"date": "2026-04-18", "school": "盛岡中央高校", "cat": "行事", "title": "Rコース説明会（保護者・生徒）"}, {"date": "2026-04-20", "school": "盛岡中央高校", "cat": "行事", "title": "結核検診（1年：午前）校務運営委員会"}, {"date": "2026-04-20", "school": "盛岡中央高校", "cat": "行事", "title": "１ターム留学オリエンテーション　面談週間①～5/15"}, {"date": "2026-04-21", "school": "盛岡中央高校", "cat": "試験", "title": "第1回英検申込締切日"}, {"date": "2026-04-22", "school": "盛岡中央高校", "cat": "行事", "title": "内科検診③（午後）"}, {"date": "2026-04-23", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・研修・新任職員研修"}, {"date": "2026-04-23", "school": "盛岡中央高校", "cat": "行事", "title": "(午前授業)"}, {"date": "2026-04-27", "school": "盛岡中央高校", "cat": "行事", "title": "貧血検査（午前）"}, {"date": "2026-04-27", "school": "盛岡中央高校", "cat": "行事", "title": "PTA役員会①"}, {"date": "2026-04-28", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日"}, {"date": "2026-04-29", "school": "盛岡中央高校", "cat": "行事", "title": "昭和の日"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "応援練習"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "１ＶＳＺ"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "就職支援個別面談"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "２ＶＳＺ"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "試験", "title": "スタサプ到達度テスト"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "３ＶＳＺ"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "新入生個人写真撮影"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "１Ｚ"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "Ｚ２"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "２Ｚ"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "３Ｚ"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "ＡＲＢ"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "課会 辞令交付式　9:00～"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "校務連絡会議（非常勤講師14時～）"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "龍澤学館新任職員歓迎・研修会"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "学年会・新年度職員会議"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "（入学式準備・予行）"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "入学式(マリオス）"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "始業式・新任式"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "（新入生休業日）"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "スタディーサポート（3Vなし）"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "対面式"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "身体測定（午前）"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "試験", "title": "スタディーサプリ到達度テスト（2・3年）"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "新入生OR・情報モラル講座（1年）"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "アデレード１ターム留学帰国"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "ICT教材登録会（1年生：3～6校時）"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "3年生進路ガイダンス"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "内科検診①（13：00～中学生・野球部）"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "試験", "title": "スタディーサプリ到達度テスト（1年）"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "部・専門委員会集会"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "帰国OR"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "Rコース集会"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "面談週間①（～5/16)"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "内科検診②（13：00～3年女子）"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "内科検診③（13：00～3年男子）"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "尿検査（一次）"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・研修・新任職員研修"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "保護者説明会(1R)"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "結核検診（9：00～1年全）"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "昭和の日"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "貧血検査（8：50～1年希）"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "第１回PTA役員会・後援会理事会"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "新入生OR　　進路Ｇ（3年）"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "自転車点検"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "テーラーズ大学説明会"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "コミュニケーションスピーチスキル(1R)"}, {"date": "2026-04-31", "school": "盛岡中央高校", "cat": "行事", "title": "人権教室（全：３・４校時）"}, {"date": "2026-05-01", "school": "盛岡中央高校", "cat": "行事", "title": "衣替え移行期間（～31日）"}, {"date": "2026-05-03", "school": "盛岡中央高校", "cat": "行事", "title": "憲法記念日"}, {"date": "2026-05-04", "school": "盛岡中央高校", "cat": "行事", "title": "みどりの日"}, {"date": "2026-05-05", "school": "盛岡中央高校", "cat": "行事", "title": "こどもの日"}, {"date": "2026-05-06", "school": "盛岡中央高校", "cat": "行事", "title": "振替休日"}, {"date": "2026-05-07", "school": "盛岡中央高校", "cat": "行事", "title": "心臓検診一次（午前）"}, {"date": "2026-05-08", "school": "盛岡中央高校", "cat": "行事", "title": "内科検診④"}, {"date": "2026-05-09", "school": "盛岡中央高校", "cat": "試験", "title": "駿台模試(V全)"}, {"date": "2026-05-11", "school": "盛岡中央高校", "cat": "行事", "title": "前期生徒総会"}, {"date": "2026-05-11", "school": "盛岡中央高校", "cat": "行事", "title": "（ICT利用OR（1V・SZ・Z：3～4校時））"}, {"date": "2026-05-12", "school": "盛岡中央高校", "cat": "行事", "title": "校務運営委員会　ＰＴＡ総会　授業参観"}, {"date": "2026-05-12", "school": "盛岡中央高校", "cat": "行事", "title": "（ICT利用OR（1AR・B：5～6校時））"}, {"date": "2026-05-13", "school": "盛岡中央高校", "cat": "行事", "title": "姉妹校派遣（韓国）～18日"}, {"date": "2026-05-14", "school": "盛岡中央高校", "cat": "行事", "title": "テイラーズ留学説明会（1V・SZ・Z・12R）"}, {"date": "2026-05-15", "school": "盛岡中央高校", "cat": "行事", "title": "眼科検診①（午後）"}, {"date": "2026-05-18", "school": "盛岡中央高校", "cat": "行事", "title": "進路マップ(3B)"}, {"date": "2026-05-19", "school": "盛岡中央高校", "cat": "行事", "title": "内科検診⑤"}, {"date": "2026-05-20", "school": "盛岡中央高校", "cat": "行事", "title": "歯科検診①（午前）"}, {"date": "2026-05-20", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・研修・学年コース会議(午前)"}, {"date": "2026-05-22", "school": "盛岡中央高校", "cat": "試験", "title": "第一回英語検定（一次）"}, {"date": "2026-05-22", "school": "盛岡中央高校", "cat": "行事", "title": "6時間授業"}, {"date": "2026-05-26", "school": "盛岡中央高校", "cat": "行事", "title": "尿検査①　SC来校日"}, {"date": "2026-05-26", "school": "盛岡中央高校", "cat": "行事", "title": "ﾏｲﾅﾋﾞ進学ﾗｲﾌﾞ事前指導（2ARB午後）"}, {"date": "2026-05-27", "school": "盛岡中央高校", "cat": "行事", "title": "内科検診⑥（午後）"}, {"date": "2026-05-27", "school": "盛岡中央高校", "cat": "行事", "title": "歯科検診②（午前）"}, {"date": "2026-05-29", "school": "盛岡中央高校", "cat": "行事", "title": "眼科検診②（午後）"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "就職支援個別面談"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "１ＶＳＺ"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "3学年集会"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "２ＶＳＺ"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "進路検討会①"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "３ＶＳＺ"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "自転車点検"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "１Ｚ"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "Ｚ２"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "高総体応援"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "２Ｚ"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "ＰＴＡ総会"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "３Ｚ"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "試験", "title": "難関大模試（１・２年希）"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "ＡＲＢ"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "衣替え移行期間（～31日）"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "心臓検診（8：30～1年全）"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "憲法記念日"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "みどりの日"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "こどもの日"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "振替休日"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "内科検診④（13：00～2年男子）"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "内科検診⑤（13：00～2年女子）"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "試験", "title": "駿台全国模試（１～３Ｖ全）"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "前期生徒総会"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "歯科検診①（8：50～中学生、高3、高2V・SZ）"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "試験", "title": "GTEC検定版（3年V～AR全/B希）"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・研修・学年コース会議"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "眼科検診①（13：30～中学生、高3、高2V・SZ）"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "授業参観・PTA総会・学級懇談会"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "歯科検診②（8：50～1年、2ZARB）"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "内科検診⑥（13：00～1年女子）"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "試験", "title": "第1回英語検定（1次）（短縮6時間）"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "内科検診⑦（13：00～1年男子）"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "尿検査（二次）"}, {"date": "2026-05-31", "school": "盛岡中央高校", "cat": "行事", "title": "眼科検診②（13：30～1年、2ZARB）"}, {"date": "2026-06-01", "school": "盛岡中央高校", "cat": "行事", "title": "衣替え"}, {"date": "2026-06-01", "school": "盛岡中央高校", "cat": "行事", "title": "(JICA講話（1年全：5～6校時）)"}, {"date": "2026-06-02", "school": "盛岡中央高校", "cat": "行事", "title": "内科検診⑦"}, {"date": "2026-06-03", "school": "盛岡中央高校", "cat": "行事", "title": "（心臓検診二次）"}, {"date": "2026-06-04", "school": "盛岡中央高校", "cat": "行事", "title": "（心臓検診二次）"}, {"date": "2026-06-06", "school": "盛岡中央高校", "cat": "行事", "title": "留学説明会①"}, {"date": "2026-06-06", "school": "盛岡中央高校", "cat": "行事", "title": "帰国・研修報告会"}, {"date": "2026-06-10", "school": "盛岡中央高校", "cat": "行事", "title": "考査前午前授業"}, {"date": "2026-06-13", "school": "盛岡中央高校", "cat": "行事", "title": "GTEC（3年希）"}, {"date": "2026-06-15", "school": "盛岡中央高校", "cat": "行事", "title": "教育実習開始（～7/4(金）)"}, {"date": "2026-06-16", "school": "盛岡中央高校", "cat": "行事", "title": "いじめアンケート"}, {"date": "2026-06-17", "school": "盛岡中央高校", "cat": "行事", "title": "キャンピングリッシュ(R全)"}, {"date": "2026-06-18", "school": "盛岡中央高校", "cat": "行事", "title": "尿検査②　ﾏｲﾅﾋﾞ進学ﾗｲﾌﾞ(2ARB午後）"}, {"date": "2026-06-18", "school": "盛岡中央高校", "cat": "行事", "title": "校務運営委員会"}, {"date": "2026-06-19", "school": "盛岡中央高校", "cat": "行事", "title": "内科検診予備（午後）"}, {"date": "2026-06-22", "school": "盛岡中央高校", "cat": "行事", "title": "(MCL留学生講話（1年全：5・6校時）)"}, {"date": "2026-06-22", "school": "盛岡中央高校", "cat": "行事", "title": "面談週間②～7/11"}, {"date": "2026-06-23", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・研修・新任職員研修(午前授業)"}, {"date": "2026-06-23", "school": "盛岡中央高校", "cat": "行事", "title": "いじめ防止対策委員会　SC来校日"}, {"date": "2026-06-25", "school": "盛岡中央高校", "cat": "行事", "title": "成績入力完了日"}, {"date": "2026-06-29", "school": "盛岡中央高校", "cat": "行事", "title": "一覧表提出日"}, {"date": "2026-06-30", "school": "盛岡中央高校", "cat": "行事", "title": "進路マップ（B全）"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "OC", "title": "PTA学校見学会"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "１ＶＳＺ"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "就職支援個別面談"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "２ＶＳＺ"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "放課後講座①"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "３ＶＳＺ"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "避難訓練（6/　予定）"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "１Ｚ"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "信男教育学園来校"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "Ｚ２"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "２Ｚ"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "３Ｚ"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "ＡＲＢ"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "衣替え"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "心臓検診（未検・二次検査）"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "内科検診（13：00～予備日）"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "自宅学習日"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "ICT端末配布①（午後：1V・SZ・Z）"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "試験", "title": "第一回漢字検定"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "ICT端末配布②（6～7校時：1AR・B）"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "教育実習開始（～27(金）)"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "キャンピングリッシュ（Rコース）"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "（ﾏｲﾅﾋﾞ進学ライブ（2ARB＋3AB希）：午後）"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "進研GPS-A（3V/SZ/Z）"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "面談週間②(～7/11)"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・研修・新任職員研修"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "信男教育学園来校：午後"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "成績入力完了日"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "試験", "title": "駿台東大京大実戦模試/代ゼミ東北大入試プレ（希）"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "私学フェア（アイーナ）"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "行事", "title": "MCL企業連携探究セミナー（2ARB4－6校時）"}, {"date": "2026-06-31", "school": "盛岡中央高校", "cat": "試験", "title": "7月進研記述模試(3年）　　一覧表提出日"}, {"date": "2026-07-01", "school": "盛岡中央高校", "cat": "行事", "title": "成績判定会議"}, {"date": "2026-07-01", "school": "盛岡中央高校", "cat": "行事", "title": "耳鼻科検診（午後）"}, {"date": "2026-07-05", "school": "盛岡中央高校", "cat": "試験", "title": "（英語検定二次）"}, {"date": "2026-07-06", "school": "盛岡中央高校", "cat": "行事", "title": "校務運営委員会"}, {"date": "2026-07-07", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日"}, {"date": "2026-07-09", "school": "盛岡中央高校", "cat": "行事", "title": "昇龍祭準備日(終日）"}, {"date": "2026-07-10", "school": "盛岡中央高校", "cat": "行事", "title": "（校内開催）"}, {"date": "2026-07-11", "school": "盛岡中央高校", "cat": "行事", "title": "（外部公開）"}, {"date": "2026-07-17", "school": "盛岡中央高校", "cat": "行事", "title": "終業式　桐原小論講演会3年希"}, {"date": "2026-07-17", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・研修・学年コース会議"}, {"date": "2026-07-18", "school": "盛岡中央高校", "cat": "行事", "title": "夏季休業（～8/16）"}, {"date": "2026-07-18", "school": "盛岡中央高校", "cat": "行事", "title": "第1回オープンスクール（1日目）"}, {"date": "2026-07-19", "school": "盛岡中央高校", "cat": "行事", "title": "第1回オープンスクール（2日目）"}, {"date": "2026-07-20", "school": "盛岡中央高校", "cat": "行事", "title": "海の日"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "V選抜特講"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "１ＶＳＺ"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "就職支援個別面談"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "２ＶＳＺ"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "生徒会役員選挙"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "３ＶＳＺ"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "進路検討会②"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "１Ｚ"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "Ｚ２"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "野球応援"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "２Ｚ"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "SZ学習合宿"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "３Ｚ"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "試験", "title": "代ゼミ東大京大入試プレ"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "ＡＲＢ"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "試験", "title": "7月進研模試（1，2年）進路マップ（B)"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "成績判定会議（短縮時程）"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "耳鼻科検診（13：00～中学生、1年全、2・3年要検）"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "昇龍祭準備日(終日）"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "（校内開催）"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "（外部公開）"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "試験", "title": "（英検二次）"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・研修・学年コース会議"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "停電・断水"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "試験", "title": "代ゼミ東大京大入試プレ(希)"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "学校環境衛生検査（午前）"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "終業式"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "桐原小論講演会（3年希）"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "夏季休業（～8/17）"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "第1回オープンスクール（1日目）"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "第1回オープンスクール（2日目）"}, {"date": "2026-07-31", "school": "盛岡中央高校", "cat": "行事", "title": "海の日"}, {"date": "2026-08-01", "school": "盛岡中央高校", "cat": "試験", "title": "代ゼミ東北大入試プレ（3年希）"}, {"date": "2026-08-06", "school": "盛岡中央高校", "cat": "行事", "title": "岩手県私学教育研修会"}, {"date": "2026-08-10", "school": "盛岡中央高校", "cat": "行事", "title": "断水・停電"}, {"date": "2026-08-11", "school": "盛岡中央高校", "cat": "行事", "title": "山の日"}, {"date": "2026-08-17", "school": "盛岡中央高校", "cat": "行事", "title": "振替休日(7/11分)"}, {"date": "2026-08-18", "school": "盛岡中央高校", "cat": "行事", "title": "始業式　小論文模試"}, {"date": "2026-08-18", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・研修・新任職員研修(午前授業)"}, {"date": "2026-08-19", "school": "盛岡中央高校", "cat": "行事", "title": "スタディーサポート（1・2年全）"}, {"date": "2026-08-20", "school": "盛岡中央高校", "cat": "行事", "title": "フェスティバルリハーサル（マリオス）"}, {"date": "2026-08-21", "school": "盛岡中央高校", "cat": "行事", "title": "国際教育フェスティバル（ﾏﾘｵｽ）"}, {"date": "2026-08-22", "school": "盛岡中央高校", "cat": "試験", "title": "全統記述模試（3年希）"}, {"date": "2026-08-24", "school": "盛岡中央高校", "cat": "行事", "title": "フィールドワーク"}, {"date": "2026-08-24", "school": "盛岡中央高校", "cat": "試験", "title": "第2回英検申込締切日"}, {"date": "2026-08-25", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日"}, {"date": "2026-08-26", "school": "盛岡中央高校", "cat": "行事", "title": "国際教育フォーラム"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "就職支援個別面談"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "１ＶＳＺ"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "３学年集会"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "２ＶＳＺ"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "就職推薦委員会"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "３ＶＳＺ"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "OC", "title": "県外大学見学会（1・2Z）"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "１Ｚ"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "Ｚ２"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "留学出発（AFSドイツ）"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "２Ｚ"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "難関大講演会（2V・SZ・Z)"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "３Ｚ"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "ＡＲＢ"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "試験", "title": "河合塾東大入試オープン（希）"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "（※総合探究の日（出校日））"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "試験", "title": "全統高1・2模試(V,SZ全/Z希）"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "山の日"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "始業式"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "試験", "title": "小論文模試（2.3年）"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "スタディサポート（1・2年）"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・研修・新任職員研修"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "後期専門委員会"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "フォーラムウィーク（～30）"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "フェスティバルリハーサル（キャラホール）"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "国際教育フェスティバル（キャラホール）"}, {"date": "2026-08-31", "school": "盛岡中央高校", "cat": "行事", "title": "難関大講演会（2年V/SZ/Z)"}, {"date": "2026-09-04", "school": "盛岡中央高校", "cat": "行事", "title": "PTA役員会②"}, {"date": "2026-09-09", "school": "盛岡中央高校", "cat": "行事", "title": "考査前午前授業"}, {"date": "2026-09-09", "school": "盛岡中央高校", "cat": "行事", "title": "進路検討会③"}, {"date": "2026-09-16", "school": "盛岡中央高校", "cat": "行事", "title": "委員会集会"}, {"date": "2026-09-17", "school": "盛岡中央高校", "cat": "行事", "title": "創立記念日"}, {"date": "2026-09-18", "school": "盛岡中央高校", "cat": "行事", "title": "校務運営委員会"}, {"date": "2026-09-21", "school": "盛岡中央高校", "cat": "行事", "title": "敬老の日"}, {"date": "2026-09-22", "school": "盛岡中央高校", "cat": "行事", "title": "国民の休日"}, {"date": "2026-09-23", "school": "盛岡中央高校", "cat": "行事", "title": "秋分の日"}, {"date": "2026-09-26", "school": "盛岡中央高校", "cat": "行事", "title": "第2回オープンスクール"}, {"date": "2026-09-28", "school": "盛岡中央高校", "cat": "行事", "title": "企業連携探究セミナー（1・2年希：4～6校時）"}, {"date": "2026-09-28", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・進学推薦委員会（午前授業）火曜日時間割授業日"}, {"date": "2026-09-29", "school": "盛岡中央高校", "cat": "行事", "title": "成績入力完了日"}, {"date": "2026-09-29", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日　月曜日時間割授業日"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "行事", "title": "就職支援個別面談"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "行事", "title": "備　考"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "試験", "title": "スタサプ到達度テスト（１・２年）"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "OC", "title": "県外大学見学会（1・2AR）"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "行事", "title": "情報モラル講座（1年全）"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "行事", "title": "放課後講座②"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "行事", "title": "シェイクアウト訓練"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "行事", "title": "第2回PTA役員会・後援会理事会"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "行事", "title": "進路検討会③"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "行事", "title": "進研スタサポ分析会"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "行事", "title": "自宅学習日"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "行事", "title": "創立記念日"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "行事", "title": "MCL企業連携探究セミナー（1ARB4－6校時）"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "行事", "title": "秋分の日"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "行事", "title": "進学推薦委員会"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "行事", "title": "成績入力完了日"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "行事", "title": "進学推薦委員会（予備）"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "行事", "title": "第2回オープンスクール"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "行事", "title": "成績一覧表提出日"}, {"date": "2026-09-31", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日"}, {"date": "2026-10-01", "school": "盛岡中央高校", "cat": "行事", "title": "衣替え移行期間（～31日）面談週間③～10/30"}, {"date": "2026-10-02", "school": "盛岡中央高校", "cat": "試験", "title": "第二回英語検定（一次）"}, {"date": "2026-10-02", "school": "盛岡中央高校", "cat": "行事", "title": "短縮6時間授業"}, {"date": "2026-10-03", "school": "盛岡中央高校", "cat": "行事", "title": "ＰＴＡ講演会　コース懇談会"}, {"date": "2026-10-05", "school": "盛岡中央高校", "cat": "行事", "title": "成績判定会議"}, {"date": "2026-10-08", "school": "盛岡中央高校", "cat": "行事", "title": "３学年集会"}, {"date": "2026-10-10", "school": "盛岡中央高校", "cat": "試験", "title": "駿台模試(V全・SZ・Z希)"}, {"date": "2026-10-15", "school": "盛岡中央高校", "cat": "行事", "title": "校務運営委員会"}, {"date": "2026-10-16", "school": "盛岡中央高校", "cat": "行事", "title": "震災学習（1年全）"}, {"date": "2026-10-17", "school": "盛岡中央高校", "cat": "試験", "title": "第3回全統記述模試（3年希）"}, {"date": "2026-10-19", "school": "盛岡中央高校", "cat": "行事", "title": "後期生徒総会"}, {"date": "2026-10-22", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・研修（午前）"}, {"date": "2026-10-25", "school": "盛岡中央高校", "cat": "試験", "title": "第1回入試説明会"}, {"date": "2026-10-27", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "第2回留学説明会"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "PTA研修旅行"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "１ＶＳＺ"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "県内大学出前講座(2年)"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "２ＶＳＺ"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "OC", "title": "県立大学見学会（２ＡＲ）"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "３ＶＳＺ"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "PTA全体会　　避難訓練"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "１Ｚ"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "Ｚ２"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "サッカー応援"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "２Ｚ"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "SJIオンラインフォーラム"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "３Ｚ"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "試験", "title": "難関大模試（1・2年希）"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "ＡＲＢ"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "成績判定会議　衣替え移行期間（～31日）"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "面談週間③(～10/24　1,2年)"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "試験", "title": "第2回英語検定（1次）（短縮6時間）"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "試験", "title": "駿台模試1,2年V（全）3年V(希)/希"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "試験", "title": "共通テスト100日前集会"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "スポーツの日"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "試験", "title": "代ゼミ東大入試プレ（希）"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "PTA講演会・学級懇談会"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "後期生徒総会"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "試験", "title": "第1回入試説明会"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "OC", "title": "大学見学会（２Ｚ）"}, {"date": "2026-10-31", "school": "盛岡中央高校", "cat": "行事", "title": "学年会"}, {"date": "2026-11-01", "school": "盛岡中央高校", "cat": "行事", "title": "衣替え"}, {"date": "2026-11-07", "school": "盛岡中央高校", "cat": "試験", "title": "第2回入試説明会"}, {"date": "2026-11-08", "school": "盛岡中央高校", "cat": "試験", "title": "（英語検定二次）"}, {"date": "2026-11-11", "school": "盛岡中央高校", "cat": "行事", "title": "考査前午前授業"}, {"date": "2026-11-17", "school": "盛岡中央高校", "cat": "行事", "title": "いじめアンケート"}, {"date": "2026-11-18", "school": "盛岡中央高校", "cat": "行事", "title": "校務運営委員会"}, {"date": "2026-11-21", "school": "盛岡中央高校", "cat": "試験", "title": "第3回入試説明会　帰国前保護者説明会"}, {"date": "2026-11-23", "school": "盛岡中央高校", "cat": "行事", "title": "勤労感謝の日"}, {"date": "2026-11-24", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日"}, {"date": "2026-11-24", "school": "盛岡中央高校", "cat": "行事", "title": "面談週間④～12/11"}, {"date": "2026-11-25", "school": "盛岡中央高校", "cat": "行事", "title": "成績入力完了日　いじめ防止対策委員会"}, {"date": "2026-11-25", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・研修・学年コース会議"}, {"date": "2026-11-27", "school": "盛岡中央高校", "cat": "行事", "title": "一覧表提出日"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "OC", "title": "県内大学見学会(1B)"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "１ＶＳＺ"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "コース会議"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "２ＶＳＺ"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "朝陽短期留学"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "３ＶＳＺ"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "１Ｚ"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "Ｚ２"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "２Ｚ"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "３Ｚ"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "ＡＲＢ"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "衣替え"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "試験", "title": "駿台東大京大実戦模試"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "文化の日"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "考査前午前授業"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "試験", "title": "第2回入試説明会"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "成績入力完了日"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "一覧表提出日"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "面談週間④(～12/12)"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "試験", "title": "第3回入試説明会"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "勤労感謝の日"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "振替休日"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・研修・学年コース会議"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "避難訓練（10/6）"}, {"date": "2026-11-31", "school": "盛岡中央高校", "cat": "行事", "title": "修学旅行(2AB）"}, {"date": "2026-12-03", "school": "盛岡中央高校", "cat": "行事", "title": "校務運営委員会"}, {"date": "2026-12-04", "school": "盛岡中央高校", "cat": "試験", "title": "第3回英検申込締切日"}, {"date": "2026-12-05", "school": "盛岡中央高校", "cat": "試験", "title": "GTEC検定版（２年希）"}, {"date": "2026-12-06", "school": "盛岡中央高校", "cat": "試験", "title": "第4回入試説明会"}, {"date": "2026-12-07", "school": "盛岡中央高校", "cat": "行事", "title": "企業連携探究中間発表(1・2年希：4～6)"}, {"date": "2026-12-08", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日"}, {"date": "2026-12-11", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・研修・新任職員研修"}, {"date": "2026-12-14", "school": "盛岡中央高校", "cat": "行事", "title": "進路調査　文理調査(1年)"}, {"date": "2026-12-18", "school": "盛岡中央高校", "cat": "行事", "title": "終業式"}, {"date": "2026-12-19", "school": "盛岡中央高校", "cat": "行事", "title": "冬季休業（～1/11）"}, {"date": "2026-12-19", "school": "盛岡中央高校", "cat": "行事", "title": "決意発表会・留学最終オリエンテーション"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "姉妹校派遣（中国）"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "１ＶＳＺ"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "イングリッシュシャワープログラム（１Z）"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "２ＶＳＺ"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "ランディングプログラム(2R長期留学：～3月）"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "３ＶＳＺ"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "進路検討会④"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "１Ｚ"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "Ｚ２"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "２Ｚ"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "３Ｚ"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "ＡＲＢ"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "学校環境衛生検査（午前）"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "GTECアセスメント版"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "(1年Basic、2年Advanced）"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "試験", "title": "第4回入試説明会"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "薬物乱用防止教室（1～2校時・2年）"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・研修・新任職員研修"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "終業式"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "冬季休業（～1/7）"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "帰国報告会(2R)"}, {"date": "2026-12-31", "school": "盛岡中央高校", "cat": "行事", "title": "１・２ＡＲＢ探究発表会"}, {"date": "2027-01-11", "school": "盛岡中央高校", "cat": "行事", "title": "成人の日"}, {"date": "2027-01-12", "school": "盛岡中央高校", "cat": "行事", "title": "始業式　小論文模試(1・2年)"}, {"date": "2027-01-13", "school": "盛岡中央高校", "cat": "行事", "title": "進路マップ(1・2B)"}, {"date": "2027-01-18", "school": "盛岡中央高校", "cat": "試験", "title": "共通テスト自己採点"}, {"date": "2027-01-18", "school": "盛岡中央高校", "cat": "行事", "title": "考査前午前授業"}, {"date": "2027-01-20", "school": "盛岡中央高校", "cat": "行事", "title": "進路検討会"}, {"date": "2027-01-20", "school": "盛岡中央高校", "cat": "行事", "title": "校務運営委員会"}, {"date": "2027-01-21", "school": "盛岡中央高校", "cat": "行事", "title": "進路検討会予備"}, {"date": "2027-01-22", "school": "盛岡中央高校", "cat": "試験", "title": "第三回英語検定（一次）"}, {"date": "2027-01-25", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・研修・学年コース会議"}, {"date": "2027-01-27", "school": "盛岡中央高校", "cat": "行事", "title": "3学年成績入力完了日"}, {"date": "2027-01-28", "school": "盛岡中央高校", "cat": "行事", "title": "成績一覧表提出日"}, {"date": "2027-01-29", "school": "盛岡中央高校", "cat": "行事", "title": "3学年会"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "留学出発（1R：3か月・１年・１ターム）"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "１ＶＳＺ"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "試験", "title": "TOEIC IPテスト(３年希)"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "２ＶＳＺ"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "３ＶＳＺ"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "１Ｚ"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "試験", "title": "本校入試（前期・後期）"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "Ｚ２"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "２Ｚ"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "3B"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "３Ｚ"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "ＡＲＢ"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "元旦"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "小論文講演会（3年希）"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "試験", "title": "駿台模試（1,2年V全/希）"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "(３年)"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "(1,2年）"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "試験", "title": "（共テ受験者）"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "成人の日"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "始業式"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "試験", "title": "小論文模試(1,2年)"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "試験", "title": "共通テスト出陣式(3年）"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "試験", "title": "共通テスト自己採点"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "進路検討会⑤（V/SZ）"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "進路検討会⑤（Z/A/R）"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "試験", "title": "第3回英語検定（1次）"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・研修・学年コース会議"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "3学年成績入力完了日"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "成績一覧表提出日"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "3学年会"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "行事", "title": "３B　総合講座"}, {"date": "2027-01-31", "school": "盛岡中央高校", "cat": "試験", "title": "入試準備日"}, {"date": "2027-02-01", "school": "盛岡中央高校", "cat": "行事", "title": "3学年登校日"}, {"date": "2027-02-06", "school": "盛岡中央高校", "cat": "試験", "title": "駿台模試(1・2V　1・2SZ・Z希)"}, {"date": "2027-02-06", "school": "盛岡中央高校", "cat": "行事", "title": "小論文講演会　帰国報告会"}, {"date": "2027-02-08", "school": "盛岡中央高校", "cat": "試験", "title": "3学年単位追認試験"}, {"date": "2027-02-08", "school": "盛岡中央高校", "cat": "行事", "title": "姉妹校派遣（フィンランド）～14日"}, {"date": "2027-02-09", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日"}, {"date": "2027-02-11", "school": "盛岡中央高校", "cat": "行事", "title": "建国記念日"}, {"date": "2027-02-17", "school": "盛岡中央高校", "cat": "行事", "title": "１・２年自宅学習日"}, {"date": "2027-02-17", "school": "盛岡中央高校", "cat": "行事", "title": "3学年登校日"}, {"date": "2027-02-18", "school": "盛岡中央高校", "cat": "行事", "title": "卒業判定会議・校務運営委員会"}, {"date": "2027-02-22", "school": "盛岡中央高校", "cat": "行事", "title": "考査講評①"}, {"date": "2027-02-23", "school": "盛岡中央高校", "cat": "行事", "title": "天皇誕生日"}, {"date": "2027-02-24", "school": "盛岡中央高校", "cat": "行事", "title": "考査講評②"}, {"date": "2027-02-24", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・研修・新任職員研修"}, {"date": "2027-02-25", "school": "盛岡中央高校", "cat": "行事", "title": "進路講演会（2ARB)"}, {"date": "2027-02-28", "school": "盛岡中央高校", "cat": "試験", "title": "（英語検定二次）"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "OC", "title": "県内大学・専門学校見学会(1B)"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "１ＶＳＺ"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "教育講演会（1・2B）"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "２ＶＳＺ"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "試験", "title": "難関大模試（1・2年希）"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "３ＶＳＺ"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "小論文講演会（3年希）"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "１Ｚ"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "Ｚ２"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "日本語研修"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "２Ｚ"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "3B"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "３Ｚ"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "ＡＲＢ"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "3学年登校日"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "試験", "title": "第2回漢字検定"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "試験", "title": "3学年単位追認試験"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "建国記念の日"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "卒業判定会議"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "自宅学習日"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "天皇誕生日"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "職員会議・研修・新任職員研修"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "学年会（１・２年）"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "修学旅行(2AB）"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "15"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "TOEIC講座(R希)"}, {"date": "2027-02-31", "school": "盛岡中央高校", "cat": "行事", "title": "14"}, {"date": "2027-03-01", "school": "盛岡中央高校", "cat": "行事", "title": "3学年登校日"}, {"date": "2027-03-02", "school": "盛岡中央高校", "cat": "行事", "title": "（5時間授業）"}, {"date": "2027-03-03", "school": "盛岡中央高校", "cat": "行事", "title": "午前：卒業式準備・予行　午後：卒業式"}, {"date": "2027-03-04", "school": "盛岡中央高校", "cat": "行事", "title": "成績入力完了日　5時間授業"}, {"date": "2027-03-04", "school": "盛岡中央高校", "cat": "行事", "title": "運営反省会（教科・学年）面談週間⑤～3/18"}, {"date": "2027-03-05", "school": "盛岡中央高校", "cat": "行事", "title": "運営反省会（課）"}, {"date": "2027-03-05", "school": "盛岡中央高校", "cat": "行事", "title": "5時間授業"}, {"date": "2027-03-09", "school": "盛岡中央高校", "cat": "行事", "title": "成績一覧表提出日　SC来校日"}, {"date": "2027-03-11", "school": "盛岡中央高校", "cat": "行事", "title": "校務運営委員会"}, {"date": "2027-03-11", "school": "盛岡中央高校", "cat": "試験", "title": "単位追認試験"}, {"date": "2027-03-12", "school": "盛岡中央高校", "cat": "行事", "title": "PTA役員会③"}, {"date": "2027-03-17", "school": "盛岡中央高校", "cat": "行事", "title": "進級判定会議・職員会議"}, {"date": "2027-03-18", "school": "盛岡中央高校", "cat": "行事", "title": "3学年諸帳簿提出日"}, {"date": "2027-03-19", "school": "盛岡中央高校", "cat": "行事", "title": "終業式"}, {"date": "2027-03-20", "school": "盛岡中央高校", "cat": "行事", "title": "（新入生招集日)"}, {"date": "2027-03-21", "school": "盛岡中央高校", "cat": "行事", "title": "春分の日"}, {"date": "2027-03-22", "school": "盛岡中央高校", "cat": "行事", "title": "振替休日"}, {"date": "2027-03-23", "school": "盛岡中央高校", "cat": "行事", "title": "学年末休業（～31日）"}, {"date": "2027-03-25", "school": "盛岡中央高校", "cat": "行事", "title": "1・2学年諸帳簿提出日"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "備　考"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "3B"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "褒賞授与式・卒業式予行"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "振替休日"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "卒業式"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "進路講演会（2ARB）"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "面談週間⑤(～3/18)"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "成績入力完了日　5時間授業"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "運営反省会（課・学年）"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "運営反省会（教科・コース）"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "5時間授業"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "試験", "title": "第3回英検二次"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "成績一覧表提出日"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "SC来校日"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "第3回PTA役員会・後援会理事会"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "試験", "title": "単位追認試験"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "3学年諸帳簿提出日"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "進級判定会議・職員会議"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "終業式"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "春分の日"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "学年末休業（～31日）"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "新入生招集日"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "TOEIC"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "1・2学年諸帳簿提出日"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "TOEIC講座(R希)"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "グローバルキャリア研修（１・２R）"}, {"date": "2027-03-31", "school": "盛岡中央高校", "cat": "行事", "title": "（GL育成研修）"}];
+let actS=new Set(SCH_MASTER.map(s=>s.name)),actC=new Set(['OC','行事','試験','祝日']);
+let view='month',cur=new Date(),selDate=null;
+const today=new Date();
+const MN=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+const WN=['日','月','火','水','木','金','土'];
+
+function dk(y,m,d){return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
+function isT(y,m,d){return today.getFullYear()===y&&today.getMonth()+1===m&&today.getDate()===d;}
+function isS(y,m,d){return selDate&&selDate.getFullYear()===y&&selDate.getMonth()+1===m&&selDate.getDate()===d;}
+function scol(n){const s=SCH_MASTER.find(x=>x.name===n);return s?s.color:'#888';}
+function getEvs(key){
+  const evs=RAW.filter(e=>e.date===key&&actS.has(e.school)&&actC.has(e.cat));
+  const h=HOL[key];
+  if(h&&actC.has('祝日'))evs.unshift({_hol:true,title:h,school:'祝日',color:'#e05'});
+  return evs;
+}
+
+function chipStyle(s){
+  if(s.chip==='solid') return `background:${s.color};color:#fff;border-color:${s.color}`;
+  if(s.chip==='outline') return `background:transparent;color:${s.color};border-color:${s.color}`;
+  return `background:${s.color}20;color:${s.color};border-color:${s.color}`;
+}
+
+function isMobile(){return window.innerWidth<768;}
+function setStat(msg,cls){
+  // admin連携時のステータス表示（将来の拡張用）
+  console.log('[cal]',msg);
+}
+function renderSch(){
+  const c=document.getElementById('sF');c.innerHTML='';
+  SCH_MASTER.forEach(s=>{
+    const b=document.createElement('button');
+    b.className='schip';b.textContent=s.short;b.title=s.name;
+    b.setAttribute('style',chipStyle(s));
+    b.onclick=()=>{if(actS.has(s.name)){actS.delete(s.name);b.classList.add('off');}else{actS.add(s.name);b.classList.remove('off');}render();};
+    c.appendChild(b);
+  });
+}
+function selAll(){SCH_MASTER.forEach(s=>actS.add(s.name));document.querySelectorAll('.schip').forEach(c=>c.classList.remove('off'));render();}
+function clrAll(){actS.clear();document.querySelectorAll('.schip').forEach(c=>c.classList.add('off'));render();}
+function togC(b){const c=b.dataset.c;if(actC.has(c)){actC.delete(c);b.classList.remove('on');}else{actC.add(c);b.classList.add('on');}render();}
+
+
+
+
+function closeModal(){document.getElementById('modalBg').classList.remove('show');}
+
+function updateSide(evs,dateStr){
+  const hd=document.getElementById('sideHd');
+  const bd=document.getElementById('sideBody');
+  if(!hd||!bd)return;
+  hd.textContent=dateStr;
+  let b='';
+  if(evs.length===0)b='<div class="side-empty">イベントなし</div>';
+  else evs.forEach(e=>{
+    const col=e._hol?'#e05':scol(e.school);
+    b+=`<div class="side-ev"><span class="side-dot" style="background:${col}"></span><div><div class="side-sch">${e.school}</div><div class="side-ttl">${e.title}</div></div></div>`;
+  });
+  bd.innerHTML=b;
+}
+
+function setView(v){
+  view=v;
+  ['vD','vW','vM','vY'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  document.getElementById({day:'vD',week:'vW',month:'vM',year:'vY'}[v]).classList.add('active');
+  render();
+}
+function goToday(){selDate=new Date(today);cur=new Date(today.getFullYear(),today.getMonth(),1);render();}
+function navP(){
+  if(view==='day'){cur=new Date(cur);cur.setDate(cur.getDate()-1);selDate=new Date(cur);}
+  else if(view==='week'){cur=new Date(cur);cur.setDate(cur.getDate()-7);}
+  else if(view==='month'){cur=new Date(cur.getFullYear(),cur.getMonth()-1,1);}
+  else cur=new Date(cur.getFullYear()-1,3,1);
+  render();
+}
+function navN(){
+  if(view==='day'){cur=new Date(cur);cur.setDate(cur.getDate()+1);selDate=new Date(cur);}
+  else if(view==='week'){cur=new Date(cur);cur.setDate(cur.getDate()+7);}
+  else if(view==='month'){cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);}
+  else cur=new Date(cur.getFullYear()+1,3,1);
+  render();
+}
+
+function render(){
+  document.getElementById('nLbl').textContent=
+    view==='month'?`${cur.getFullYear()}年 ${MN[cur.getMonth()]}`:
+    view==='year'?`${cur.getFullYear()}年度`:
+    view==='day'?`${cur.getFullYear()}年${cur.getMonth()+1}月${cur.getDate()}日（${WN[cur.getDay()]}）`:
+    (()=>{const ws=new Date(cur);ws.setDate(cur.getDate()-cur.getDay());const we=new Date(ws);we.setDate(ws.getDate()+6);return `${ws.getFullYear()}年 ${ws.getMonth()+1}/${ws.getDate()}〜${we.getMonth()+1}/${we.getDate()}`;})();
+  renderCal();
+  rLeg();
+}
+
+function renderCal(){
+  const outer=document.getElementById('calOuter');
+  if(view==='month'){
+    const grid=rMonth(cur.getFullYear(),cur.getMonth()+1);
+    if(!isMobile()){
+      const selKey=selDate?dk(selDate.getFullYear(),selDate.getMonth()+1,selDate.getDate()):null;
+      const evs=selKey?getEvs(selKey):[];
+      const dateStr=selDate?`${selDate.getFullYear()}年${selDate.getMonth()+1}月${selDate.getDate()}日（${WN[selDate.getDay()]}）`:'日付を選択';
+      let sideBody=selDate&&evs.length===0?'<div class="side-empty">イベントなし</div>':
+        selDate?evs.map(e=>{const col=e._hol?'#e05':scol(e.school);return `<div class="side-ev"><span class="side-dot" style="background:${col}"></span><div><div class="side-sch">${e.school}</div><div class="side-ttl">${e.title}</div></div></div>`;}).join('')
+        :'<div class="side-hint">日付をクリックしてください</div>';
+      outer.innerHTML=`<div class="layout-side"><div>${grid}</div><div class="side-panel"><div class="side-hd" id="sideHd">${dateStr}</div><div class="side-body" id="sideBody">${sideBody}</div></div></div>`;
+    } else {
+      outer.innerHTML=grid;
+    }
+  } else if(view==='week'){
+    const ws=new Date(cur);ws.setDate(cur.getDate()-cur.getDay());
+    outer.innerHTML=rWeek(ws);
+  } else if(view==='day'){
+    selDate=new Date(cur);outer.innerHTML=rDay(cur);
+  } else {
+    outer.innerHTML=rYear(cur.getFullYear());
+  }
+}
+
+function rMonth(y,m){
+  const fd=new Date(y,m-1,1).getDay(),dim=new Date(y,m,0).getDate(),dp=new Date(y,m-1,0).getDate();
+  let h='<div class="mgrid">',nd=1;
+  WN.forEach(d=>h+=`<div class="dh">${d}</div>`);
+  for(let i=0;i<42;i++){
+    const col=i%7;
+    if(i<fd){
+      const pd=dp-fd+i+1,pm=m===1?12:m-1,py=m===1?y-1:y;
+      h+=`<div class="dc om" onclick="selDay(${py},${pm},${pd})"><div class="dn-wrap"><span class="dn" style="color:#ddd">${pd}</span></div></div>`;
+    }else{
+      const day=i-fd+1;
+      if(day>dim){
+        const nm=m===12?1:m+1,ny=m===12?y+1:y;
+        h+=`<div class="dc om" onclick="selDay(${ny},${nm},${nd})"><div class="dn-wrap"><span class="dn" style="color:#ddd">${nd++}</span></div></div>`;
+      }else{
+        const key=dk(y,m,day),tod=isT(y,m,day),sel=isS(y,m,day),evs=getEvs(key);
+        let cls='dc'+(col===0?' sun':col===6?' sat':'')+(tod?' tod':'')+(sel?' sel':'');
+        h+=`<div class="${cls}" onclick="selDay(${y},${m},${day})">`;
+        h+=`<div class="dn-wrap"><span class="dn">${day}</span></div>`;
+        evs.slice(0,3).forEach(e=>{
+          if(e._hol)h+=`<div class="hp">${e.title}</div>`;
+          else h+=`<div class="ep" style="background:${scol(e.school)}20;color:${scol(e.school)}" title="${e.school}: ${e.title}">${e.school.slice?e.school.slice(0,4):e.school} ${e.title}</div>`;
+        });
+        if(evs.length>3)h+=`<div class="more" onclick="event.stopPropagation();selDay(${y},${m},${day})">+${evs.length-3}件</div>`;
+        h+='</div>';
+      }
+    }
+  }
+  return h+'</div>';
+}
+
+function rWeek(ws){
+  const days=[];for(let i=0;i<7;i++){const d=new Date(ws);d.setDate(d.getDate()+i);days.push(d);}
+  let h='<div class="wgrid"><div style="background:#37485A;border-right:1px solid rgba(255,255,255,0.12)"></div>';
+  days.forEach((d,i)=>{
+    const tod=d.toDateString()===today.toDateString(),sel=selDate&&d.toDateString()===selDate.toDateString();
+    let cls='wdh'+(tod?' todh':'')+(sel?' selh':'')+(i===0&&!tod?' sunh':i===6&&!tod?' sath':'');
+    h+=`<div class="${cls}" onclick="selDay(${d.getFullYear()},${d.getMonth()+1},${d.getDate()})"><span class="wdh-date">${d.getDate()}</span><span class="wdh-day">${WN[i]}</span></div>`;
+  });
+  h+='<div class="wlbl">終日</div>';
+  days.forEach(d=>{
+    const key=dk(d.getFullYear(),d.getMonth()+1,d.getDate()),evs=getEvs(key);
+    const tod=d.toDateString()===today.toDateString(),sel=selDate&&d.toDateString()===selDate.toDateString();
+    h+=`<div class="wcell${sel?' selw':tod?' todw':''}" onclick="selDay(${d.getFullYear()},${d.getMonth()+1},${d.getDate()})">`;
+    evs.forEach(e=>{
+      if(e._hol)h+=`<div class="hp" style="margin-bottom:1px">${e.title}</div>`;
+      else h+=`<div class="ep" style="background:${scol(e.school)}20;color:${scol(e.school)};margin-bottom:1px">${e.title}</div>`;
+    });
+    h+='</div>';
+  });
+  ['午前','正午','午後'].forEach(s=>{
+    h+=`<div class="wlbl">${s}</div>`;
+    days.forEach(d=>{
+      const tod=d.toDateString()===today.toDateString(),sel=selDate&&d.toDateString()===selDate.toDateString();
+      h+=`<div class="wcell${sel?' selw':tod?' todw':''}" onclick="selDay(${d.getFullYear()},${d.getMonth()+1},${d.getDate()})"></div>`;
+    });
+  });
+  return h+'</div>';
+}
+
+function rDay(date){
+  const key=dk(date.getFullYear(),date.getMonth()+1,date.getDate()),evs=getEvs(key);
+  const tod=date.toDateString()===today.toDateString(),col=date.getDay();
+  const hbg=tod?'#00BAA5':col===0?'#c0392b':col===6?'#1a6fad':'#37485A';
+  let h='<div class="day-wrap"><div class="dhrow">';
+  h+=`<div style="background:#f5f5f5;padding:8px;font-size:11px;color:#aaa;text-align:center;border-right:1px solid #eee">終日</div>`;
+  h+=`<div style="background:${hbg};color:#fff;padding:8px 14px;font-size:14px;font-weight:600">${date.getFullYear()}年${date.getMonth()+1}月${date.getDate()}日（${WN[col]}）${tod?' — 今日':''}</div>`;
+  h+='</div><div class="darow">';
+  h+=`<div style="font-size:10px;color:#aaa;padding:6px;text-align:right;border-right:1px solid #eee;background:#f5f5f5">終日</div>`;
+  h+=`<div style="padding:6px;background:${tod?'#e6faf8':'white'}">`;
+  if(evs.length===0)h+='<span style="font-size:12px;color:#ccc">イベントなし</span>';
+  evs.forEach(e=>{
+    const col=e._hol?'#e05':scol(e.school);
+    if(e._hol)h+=`<span class="hp" style="display:inline-flex;margin:2px 4px 2px 0;padding:4px 10px">${e.title}</span>`;
+    else h+=`<span class="ep" style="display:inline-flex;background:${col}20;color:${col};padding:4px 10px;font-size:12px;margin:2px 4px 2px 0;border-radius:4px">${e.school}　${e.title}</span>`;
+  });
+  h+='</div></div>';
+  ['8:00','9:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'].forEach(s=>{
+    h+=`<div class="dslot"><div class="dst">${s}</div><div class="dse" style="background:${tod?'#e6faf8':'white'}"></div></div>`;
+  });
+  return h+'</div>';
+}
+
+function rYear(fy){
+  const months=[];
+  for(let i=4;i<=12;i++)months.push({y:fy,m:i});
+  for(let i=1;i<=3;i++)months.push({y:fy+1,m:i});
+  let h='<div class="ygrid">';
+  months.forEach(({y,m})=>{
+    const fd=new Date(y,m-1,1).getDay(),dim=new Date(y,m,0).getDate();
+    h+=`<div class="ymm"><div class="ymh">${y}年 ${MN[m-1]}</div><div class="ymg">`;
+    WN.forEach(d=>h+=`<div class="ymdh">${d}</div>`);
+    for(let i=0;i<fd;i++)h+='<div class="ymd oth"></div>';
+    for(let day=1;day<=dim;day++){
+      const col=(fd+day-1)%7,key=dk(y,m,day);
+      const tod=isT(y,m,day),sel=isS(y,m,day),hol=HOL[key];
+      const evs=RAW.filter(e=>e.date===key&&actS.has(e.school)&&actC.has(e.cat));
+      let cls='ymd';
+      if(!tod&&!sel){if((hol&&actC.has('祝日'))||col===0)cls+=' suny';else if(col===6)cls+=' saty';}
+      if(tod)cls+=' tody';if(sel)cls+=' sely';
+      const dots=evs.map(e=>`<span class="dot" style="background:${scol(e.school)}"></span>`).join('');
+      h+=`<div class="${cls}" onclick="selDay(${y},${m},${day})"><span class="yn">${day}</span><div class="drow">${dots}</div></div>`;
+    }
+    h+='</div></div>';
+  });
+  return h+'</div>';
+}
+
+function rLeg(){
+  const vis=SCH_MASTER.filter(s=>actS.has(s.name));
+  document.getElementById('leg').innerHTML=vis.map(s=>`<div class="li"><span class="ld" style="background:${s.color}"></span>${s.short}</div>`).join('');
+}
+
+
+
+// admin.htmlでの一括読み込みデータを自動反映
+(function(){
+  try{
+    const merged=localStorage.getItem('cal_merged_events');
+    if(merged){
+      const imported=JSON.parse(merged);
+      if(imported.length>0){
+        RAW=[...imported];
+        setStat('✓ '+imported.length+'件（管理画面から自動反映）','ok');
+        render();
+      }
+    }
+  }catch(e){}
+})();
+renderSch();
+selDate=new Date(today);cur=new Date(today.getFullYear(),today.getMonth(),1);
+render();
+</script>
+</body>
+</html>
