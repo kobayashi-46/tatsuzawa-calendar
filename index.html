@@ -230,7 +230,9 @@ body{font-family:'Hiragino Sans','Meiryo',sans-serif;background:#f5f7fa;color:#3
 const ALLOWED_DOMAINS = ["tatsuzawa.ac.jp","morijobi.ac.jp","morijyobi.ac.jp"];
 
 function handleCredential(response) {
-  const payload = JSON.parse(atob(response.credential.split('.')[1]));
+  const base64 = response.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+  const padded = base64 + '=='.slice(0, (4 - base64.length % 4) % 4);
+  const payload = JSON.parse(atob(padded));
   const email = payload.email || '';
   const domain = email.split('@')[1] || '';
   if (ALLOWED_DOMAINS.includes(domain)) {
