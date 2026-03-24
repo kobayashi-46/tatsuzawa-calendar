@@ -68,9 +68,11 @@ body{font-family:'Hiragino Sans','Meiryo',sans-serif;background:#f5f7fa;color:#3
 <body>
 
 <div class="topbar">
-  <div class="topbar-left"></div>
+  <div class="topbar-left">
+    <span class="topbar-title">データソース管理</span>
+    <span class="topbar-sub">龍澤学館グループ マスターカレンダー</span>
   </div>
-  <a class="back-btn" href="master_calendar_v3.html">&#8592; カレンダーに戻る</a>
+  <a class="back-btn" href="index.html">&#8592; カレンダーに戻る</a>
 </div>
 
 <div class="wrap">
@@ -227,7 +229,7 @@ async function loadOne(name){
     results[name] = {status:'ok', time:now, count:parsed.length, raw:JSON.stringify(parsed)};
     saveResults();
     mergeToCalendar();
-    document.getElementById('stat-'+id).innerHTML = `<span class="stat-badge stat-ok">&#10003; ${now}　${count}件</span>`;
+    document.getElementById('stat-'+id).innerHTML = `<span class="stat-badge stat-ok">&#10003; ${now}　${parsed.length}件</span>`;
   } catch(e){
     results[name] = {status:'error'};
     saveResults();
