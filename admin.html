@@ -212,14 +212,19 @@ async function loadOne(name){
     const r = await fetch(url);
     if(!r.ok) throw new Error('HTTP '+r.status);
     const txt = await r.text();
-    const lines = txt.split("\n").map(l=>l.trim()).filter(l=>l);
-    let count = 0;
-    for(let i=1;i<lines.length;i++){
-      const cols = lines[i].split(",").map(c=>c.replace(/^"|"$/g,"").trim());
-      if(cols.length>=4&&cols[0]&&!cols[0].startsWith('※')) count++;
+    let parsed = [];
+    try {
+      parsed = JSON.parse(txt);
+    } catch(e) {
+      const lines = txt.split("\n").map(l=>l.trim()).filter(l=>l);
+      for(let i=1;i<lines.length;i++){
+        const cols = lines[i].split(",").map(c=>c.replace(/^"|"$/g,"").trim());
+        if(cols.length>=4&&cols[0]&&!cols[0].startsWith('※'))
+          parsed.push({date:cols[0],school:cols[1],cat:cols[2],title:cols[3]});
+      }
     }
     const now = new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
-    results[name] = {status:'ok', time:now, count, raw:txt};
+    results[name] = {status:'ok', time:now, count:parsed.length, raw:JSON.stringify(parsed)};
     saveResults();
     mergeToCalendar();
     document.getElementById('stat-'+id).innerHTML = `<span class="stat-badge stat-ok">&#10003; ${now}　${count}件</span>`;
@@ -251,14 +256,10 @@ function mergeToCalendar(){
   SCHOOLS.forEach(s=>{
     const r = results[s.name];
     if(!r||r.status!=='ok'||!r.raw) return;
-    const lines = r.raw.split("\n").map(l=>l.trim()).filter(l=>l);
-    for(let i=1;i<lines.length;i++){
-      const cols = lines[i].split(",").map(c=>c.replace(/^"|"$/g,"").trim());
-      if(cols.length<4) continue;
-      const [date,school,cat,title] = cols;
-      if(!date||!school||!cat||!title||date.startsWith('※')) continue;
-      allEvents.push({date,school,cat,title});
-    }
+    try {
+      const evs = JSON.parse(r.raw);
+      evs.forEach(e=>{ if(e.date&&e.school&&e.cat&&e.title) allEvents.push(e); });
+    } catch(e) {}
   });
   localStorage.setItem('cal_merged_events', JSON.stringify(allEvents));
 }
